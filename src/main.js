@@ -2,12 +2,15 @@ import { getImages } from './js/pixabay-api.js';
 import renderCard from './js/render-functions.js';
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css"; 
 
 const form = document.querySelector('.form');
 const loader = document.querySelector('.loader');
 const loadMoreBtn = document.querySelector('.load-more-btn');
 let page = 1;
 let currentSearchQuery = '';
+let lightbox;
 
 function showLoader() {
     loader.style.display = 'inline-block';
@@ -50,13 +53,13 @@ form.addEventListener('submit', async event => {
     }
 
     const gallery = document.querySelector('.cards');
-    gallery.innerHTML = '';
     renderCard(images);
     loadMoreBtn.style.display = 'flex';
     window.scrollTo({
         top: gallery.offsetTop,
         behavior: 'smooth'
     });
+    lightbox = new SimpleLightbox(".cards a", { captionsData: "alt", captionDelay: 250, captionPosition: 'bottom' });
 });
 
 loadMoreBtn.addEventListener('click', async () => {
@@ -76,4 +79,5 @@ loadMoreBtn.addEventListener('click', async () => {
         top: document.querySelector('.card').getBoundingClientRect().height * 2,
         behavior: 'smooth'
     });
+    lightbox.refresh();
 });

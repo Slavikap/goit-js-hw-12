@@ -1,5 +1,3 @@
-import SimpleLightbox from "simplelightbox";
-
 export default function renderCard(cards) {
     const gallery = document.querySelector('.cards');
     cards.forEach(card => {
@@ -29,6 +27,4 @@ export default function renderCard(cards) {
              </li>`;
         gallery.insertAdjacentHTML('beforeend', cardHTML);
     });
-    const lightbox = new SimpleLightbox(".cards a", { captionsData: "alt", captionDelay: 250, captionPosition: 'bottom' });
-    lightbox.refresh();
 }
