@@ -36,30 +36,52 @@ form.addEventListener('submit', async event => {
         return;
     }
 
-    currentSearchQuery = userInput;
-    page = 1;
-
-    const images = await getImages(userInput);
-    if (images.length === 0) {
-        iziToast.show({
-            title: 'Error',
-            backgroundColor: '#EF4040',
-            messageColor: '#FFFFFF',
-            titleColor: '#FFFFFF',
-            message: 'Sorry, there are no images matching your search. Please try again!',
-            position: 'bottomRight'
-        });
-        return;
+    if (currentSearchQuery !== userInput) {
+        currentSearchQuery = userInput;
+        page = 1;
+        document.querySelector('.cards').innerHTML = ''; 
     }
 
-    const gallery = document.querySelector('.cards');
-    renderCard(images);
-    loadMoreBtn.style.display = 'flex';
-    window.scrollTo({
-        top: gallery.offsetTop,
-        behavior: 'smooth'
-    });
-    lightbox = new SimpleLightbox(".cards a", { captionsData: "alt", captionDelay: 250, captionPosition: 'bottom' });
+    showLoader();
+
+    try {
+        const images = await getImages(userInput);
+        hideLoader();
+
+        if (images.length === 0) {
+            iziToast.show({
+                title: 'Error',
+                backgroundColor: '#EF4040',
+                messageColor: '#FFFFFF',
+                titleColor: '#FFFFFF',
+                message: 'Sorry, there are no images matching your search. Please try again!',
+                position: 'bottomRight'
+            });
+            return;
+        }
+
+        renderCard(images);
+
+        if (!lightbox) {
+            lightbox = new SimpleLightbox(".cards a", { captionsData: "alt", captionDelay: 250, captionPosition: 'bottom' });
+        } else {
+            lightbox.refresh();
+        }
+
+        loadMoreBtn.style.display = 'flex';
+        window.scrollTo({
+            top: document.querySelector('.cards').offsetTop,
+            behavior: 'smooth'
+        });
+    } catch (error) {
+        hideLoader();
+        iziToast.error({
+            title: 'Error',
+            message: 'Failed to fetch images. Please try again later.',
+            position: 'bottomRight'
+        });
+        console.error('Error fetching images:', error);
+    }
 });
 
 loadMoreBtn.addEventListener('click', async () => {
@@ -75,9 +97,11 @@ loadMoreBtn.addEventListener('click', async () => {
         return;
     }
     renderCard(images);
+    lightbox.refresh();
+
     window.scrollBy({
         top: document.querySelector('.card').getBoundingClientRect().height * 2,
         behavior: 'smooth'
     });
-    lightbox.refresh();
 });
+
